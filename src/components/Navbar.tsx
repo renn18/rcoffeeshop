@@ -45,7 +45,7 @@ export default function Navbar() {
                                 <Link href="/dashboard" className="font-semibold text-coffee-dark hover:text-coffee-brown transition-colors">
                                     Dasbor
                                 </Link>
-                                <button onClick={handleLogout} className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">
+                                <button onClick={handleLogout} className="bg-red-400 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">
                                     Logout
                                 </button>
                             </>
@@ -58,7 +58,7 @@ export default function Navbar() {
 
                     {/* Tombol Menu Mobile */}
                     <div className="md:hidden">
-                        <button onClick={() => setIsOpen(!isOpen)} className="text-coffee-dark focus:outline-none">
+                        <button onClick={() => setIsOpen(!isOpen)} className="text-amber-700 focus:outline-none">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
                             </svg>
@@ -71,7 +71,7 @@ export default function Navbar() {
             {isOpen && (
                 <div className="md:hidden px-4 pt-2 pb-4 space-y-2 border-t border-gray-200">
                     {navLinks.map((link) => (
-                        <Link key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="block text-coffee-dark hover:text-coffee-brown transition-colors py-2">
+                        <Link key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="block text-amber-700 hover:text-amber-800 transition-colors py-2">
                             {link.name}
                         </Link>
                     ))}
