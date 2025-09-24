@@ -21,8 +21,8 @@ export default function Navbar() {
     const navLinks = [
         { name: "Home", href: "/" },
         { name: "Menu", href: "/menu" },
-        { name: "Tentang Kami", href: "/tentang-kami" },
-        { name: "Kontak", href: "/kontak" },
+        { name: "Tentang Kami", href: "/aboutus" },
+        { name: "Kontak", href: "/contact" },
     ];
 
     return (
@@ -42,7 +42,7 @@ export default function Navbar() {
                         ))}
                         {user ? (
                             <>
-                                <Link href="/dashboard" className="font-semibold text-coffee-dark hover:text-coffee-brown transition-colors">
+                                <Link href="/admin" className="font-semibold text-coffee-dark hover:text-coffee-brown transition-colors">
                                     Dasbor
                                 </Link>
                                 <button onClick={handleLogout} className="bg-red-400 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">
@@ -78,7 +78,7 @@ export default function Navbar() {
                     <div className="pt-4 mt-4 border-t border-gray-200">
                         {user ? (
                             <>
-                                <Link href="/dashboard" onClick={() => setIsOpen(false)} className="block text-amber-600 font-semibold hover:text-coffee-brown transition-colors py-2">
+                                <Link href="/admin" onClick={() => setIsOpen(false)} className="block text-amber-600 font-semibold hover:text-coffee-brown transition-colors py-2">
                                     Dasbor
                                 </Link>
                                 <button onClick={handleLogout} className="w-full text-left text-red-600 py-2">
