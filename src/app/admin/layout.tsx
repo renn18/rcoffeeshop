@@ -1,13 +1,9 @@
 'use client';
 
 import React, { useState, ReactNode } from 'react';
-import Link from 'next/link'; // Sementara dinonaktifkan untuk mengatasi error pratinjau
-import { usePathname } from 'next/navigation'; // Sementara dinonaktifkan untuk mengatasi error pratinjau
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Coffee, ClipboardList, Users, Settings, Menu } from 'lucide-react';
-
-// ============================================================================
-// KOMPONEN-KOMPONEN UNTUK LAYOUT
-// ============================================================================
 
 type NavItemProps = {
     href: string;
@@ -27,7 +23,7 @@ const NavItem: React.FC<NavItemProps> = ({ href, icon, text, onClick }) => {
                 onClick={onClick}
                 className={`flex items-center p-3 my-1 font-medium rounded-lg cursor-pointer transition-colors ${isActive
                     ? 'bg-amber-100 text-amber-900'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    : 'text-gray-300 hover:bg-gray-100 hover:text-gray-900'
                     }`}
             >
                 {icon}
@@ -44,19 +40,19 @@ type SidebarProps = {
     onNavigate: (path: string) => void;
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, closeSidebar, activePath, onNavigate }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isSidebarOpen, closeSidebar, onNavigate }) => {
     const handleNavClick = (path: string) => {
         onNavigate(path);
         closeSidebar();
     };
 
     return (
-        <aside className={`fixed inset-y-0 left-0 bg-white z-20 w-64 p-4 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:shadow-none shadow-xl`}>
+        <aside className={`fixed inset-y-0 left-0 z-20 w-64 p-4 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 md:shadow-none shadow-xl`}>
             <div className="flex items-center mb-8">
                 <div className="bg-amber-800 p-2 rounded-lg">
                     <Coffee className="w-6 h-6 text-white" />
                 </div>
-                <h1 className="text-xl font-bold ml-3 text-gray-800">Kopi Bahagia</h1>
+                <h1 className="text-xl font-bold ml-3 text-gray-800 dark:text-gray-300">R Coffee</h1>
             </div>
             <nav>
                 <ul>
@@ -85,23 +81,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, activePath }) => {
     const formattedTitle = pageTitle ? pageTitle.charAt(0).toUpperCase() + pageTitle.slice(1) : 'Dasbor';
 
     return (
-        <header className="bg-gray-50/80 backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10 border-b border-gray-200">
+        <header className="bg-gray-50/80 dark:bg-transparent backdrop-blur-sm p-4 flex items-center justify-between sticky top-0 z-10 border-gray-200">
             <div className="flex items-center">
-                <button onClick={toggleSidebar} className="md:hidden p-2 rounded-md hover:bg-gray-200"><Menu className="w-6 h-6 text-gray-700" /></button>
-                <h2 className="text-xl font-bold text-gray-800 ml-2 md:ml-0">{formattedTitle === 'admin' ? 'Dasbor' : formattedTitle}</h2>
+                <button onClick={toggleSidebar} className="md:hidden p-2 rounded-md hover:bg-gray-200"><Menu className="w-6 h-6 text-gray-700 dark:text-gray-400" /></button>
+                {/* <h2 className="text-xl font-bold text-gray-800 dark:text-gray-300  ml-2 md:ml-0">{formattedTitle === 'admin' ? 'Dasbor' : formattedTitle}</h2> */}
             </div>
             <div className="flex items-center">
                 <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden"><img src="https://placehold.co/40x40/E2E8F0/4A5568?text=A" alt="Admin Avatar" className="w-full h-full object-cover" /></div>
-                <div className="ml-3 hidden sm:block"><p className="font-semibold text-sm text-gray-800">Admin Kopi</p><p className="text-xs text-gray-500">admin@kopibahagia.com</p></div>
+                <div className="ml-3 hidden sm:block"><p className="font-semibold text-sm text-gray-800 dark:text-slate-400">Admin Kopi</p><p className="text-xs text-gray-500">admin@kopibahagia.com</p></div>
             </div>
         </header>
     );
 };
-
-
-// ============================================================================
-// KOMPONEN LAYOUT UTAMA
-// ============================================================================
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -111,7 +102,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const closeSidebar = () => setSidebarOpen(false);
 
     return (
-        <div className="bg-gray-50 min-h-screen font-sans text-gray-900">
+        <div className="bg-gray-50 dark:bg-transparent min-h-screen font-sans text-gray-900">
             <div className="flex">
                 <Sidebar isSidebarOpen={isSidebarOpen} closeSidebar={closeSidebar} activePath={activePath} onNavigate={setActivePath} />
                 {isSidebarOpen && <div onClick={toggleSidebar} className="fixed inset-0 bg-black/30 z-10 md:hidden"></div>}

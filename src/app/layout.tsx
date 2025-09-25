@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
+import { NavbarDemo } from "@/components/NavbarNew";
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -28,7 +29,7 @@ export default function RootLayout({
         className={`${poppins.variable} scroll-smooth bg-white dark:bg-gray-800 suppressHydrationWarnings antialiased`}
       >
         <AuthProvider>
-          <Navbar />
+          <NavbarDemo />
           {children}
           <Footer />
         </AuthProvider>

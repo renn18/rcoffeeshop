@@ -96,21 +96,21 @@ const DashboardPage: React.FC = () => {
     };
 
     const StatCard: React.FC<StatCardProps> = ({ title, value, change, icon }) => (
-        <div className="bg-white p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+        <div className="bg-white dark:bg-transparent border border-gray-600 p-6 rounded-2xl shadow-sm flex flex-col justify-between">
             <div className="flex justify-between items-start">
                 <span className="text-sm font-semibold text-gray-500">{title}</span>
                 {icon}
             </div>
             <div>
-                <h3 className="text-2xl font-bold mt-2 text-gray-800">{value}</h3>
+                <h3 className="text-2xl font-bold mt-2 text-gray-800 dark:text-gray-200">{value}</h3>
                 <p className={`text-sm mt-1 font-medium ${change.startsWith('+') ? 'text-green-600' : 'text-gray-500'}`}>{change}</p>
             </div>
         </div>
     );
 
     const SalesChartPlaceholder: React.FC = () => (
-        <div className="bg-white p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Analisis Penjualan Mingguan</h3>
+        <div className="bg-white dark:bg-transparent p-6 rounded-2xl shadow-sm border border-gray-600">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-300 mb-4">Analisis Penjualan Mingguan</h3>
             <div className="flex items-end h-64 space-x-4">
                 {/* Ini adalah placeholder visual untuk grafik. Ganti dengan library grafik seperti Recharts atau Chart.js */}
                 <div className="flex-1 bg-amber-200 rounded-t-lg w-full" style={{ height: '60%' }} title="Senin"></div>
@@ -125,11 +125,11 @@ const DashboardPage: React.FC = () => {
     );
 
     const RecentOrdersTable: React.FC = () => (
-        <div className="bg-white p-6 rounded-2xl shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Pesanan Terbaru</h3>
+        <div className=" p-6 rounded-2xl shadow-sm border border-gray-600 bg-white dark:bg-transparent">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Pesanan Terbaru</h3>
             <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left text-gray-600">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <table className="w-full text-sm text-left text-gray-600 dark:text-gray-300">
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-500">
                         <tr>
                             <th scope="col" className="px-6 py-3">ID Pesanan</th>
                             <th scope="col" className="px-6 py-3">Pelanggan</th>
@@ -140,8 +140,8 @@ const DashboardPage: React.FC = () => {
                     </thead>
                     <tbody>
                         {mockRecentOrders.map(order => (
-                            <tr key={order.id} className="bg-white border-b hover:bg-gray-50">
-                                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{order.id}</td>
+                            <tr key={order.id} className="bg-white dark:bg-transparent border-b hover:bg-gray-500">
+                                <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-200 whitespace-nowrap">{order.id}</td>
                                 <td className="px-6 py-4">{order.customer}</td>
                                 <td className="px-6 py-4">{order.total}</td>
                                 <td className="px-6 py-4"><StatusBadge status={order.status} /></td>
@@ -160,7 +160,7 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div className="p-6 md:p-8">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Selamat Datang Kembali, {user.email}</h1>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Selamat Datang Kembali, {user.email}</h1>
             <p className="text-gray-500 mb-8">Berikut adalah ringkasan aktivitas coffee shop Anda hari ini.</p>
 
             {/* Grid Statistik */}
