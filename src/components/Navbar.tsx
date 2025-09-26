@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "./Theme";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +45,7 @@ export default function Navbar() {
                             <>
                                 <Link href="/admin" className="font-semibold text-coffee-dark hover:text-coffee-brown transition-colors">
                                     Dasbor
+
                                 </Link>
                                 <button onClick={handleLogout} className="bg-red-400 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600">
                                     Logout

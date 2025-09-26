@@ -3,7 +3,7 @@ import MenuItem from "@/components/MenuItemCard";
 
 export default function MenuPage() {
     return (
-        <div>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-12">
             <h1 className="text-4xl font-extrabold text-center my-12 text-coffee-dark">
                 Menu Lengkap Kami
             </h1>

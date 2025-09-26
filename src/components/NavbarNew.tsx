@@ -14,9 +14,31 @@ import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ThemeToggler from "./ThemeTogler";
+import { FaMoon, FaSun } from "react-icons/fa";
+
+const THEME_KEY = 'theme';
 
 export function NavbarDemo() {
+    const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+    useEffect(() => {
+        const savedTheme = localStorage.getItem(THEME_KEY) as 'light' | 'dark' | null;
+        if (savedTheme) {
+            setTheme(savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+    }, []);
+
+    const toggleTheme = () => {
+        const newTheme = theme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem(THEME_KEY, newTheme);
+    };
+
+
     const [isOpen, setIsOpen] = useState(false);
     const { user } = useAuth();
     const router = useRouter();
@@ -65,6 +87,7 @@ export function NavbarDemo() {
                         {
                             user ? (
                                 <>
+                                    <NavbarButton variant="primary" onClick={toggleTheme}>Dark</NavbarButton>
                                     <NavbarButton variant="secondary" onClick={handleDashboard}>Dashboard</NavbarButton>
                                     <NavbarButton variant="primary" onClick={handleLogout}>Logout</NavbarButton>
                                 </>
@@ -77,6 +100,8 @@ export function NavbarDemo() {
                                 </NavbarButton>
                             )
                         }
+                        <NavbarButton variant="secondary" onClick={toggleTheme}>{theme === 'light' ? <FaMoon /> : <FaSun />}</NavbarButton>
+
                     </div>
                 </NavBody>
 

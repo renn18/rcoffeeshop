@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 
 /* Set Dark Theme : Data-theme */
-/* @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *)); */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -119,3 +119,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+  .theme-toggle {
+    display: flex;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .theme-toggle:hover {
+    transform: rotate(360deg);
+  }
+  
+  .theme-toggle svg {
+    width: 24px;
+    height: 24px;
+    transition: fill 0.3s ease-in-out;
+  }

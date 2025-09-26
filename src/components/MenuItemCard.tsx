@@ -23,12 +23,12 @@ export default function MenuItem({ product }: MenuItemProps) {
                     unoptimized
                 />
             </div>
-            <div className="p-6">
-                <h3 className="text-xl font-bold mb-2">{product.name}</h3>
+            <div className="p-6 bg-gray-800">
+                <h3 className="text-xl text-gray-600 font-bold mb-2">{product.name}</h3>
                 <p className="text-gray-600 mb-4 h-12">{product.description}</p>
                 <div className="flex justify-between items-center">
                     <span className="text-lg font-semibold text-coffee-brown">{formatPrice}</span>
-                    <button className="bg-coffee-dark text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
+                    <button className="bg-gray-800 dark:bg-gray-400 text-white dark:text-gray-800 hover:bg-green-400 cursor-pointer px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors">
                         Pesan
                     </button>
                 </div>
