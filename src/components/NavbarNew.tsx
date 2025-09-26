@@ -87,7 +87,6 @@ export function NavbarDemo() {
                         {
                             user ? (
                                 <>
-                                    <NavbarButton variant="primary" onClick={toggleTheme}>Dark</NavbarButton>
                                     <NavbarButton variant="secondary" onClick={handleDashboard}>Dashboard</NavbarButton>
                                     <NavbarButton variant="primary" onClick={handleLogout}>Logout</NavbarButton>
                                 </>
