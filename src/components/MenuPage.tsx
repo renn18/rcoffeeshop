@@ -1,14 +1,11 @@
 'use client';
 
 import React, { FormEvent, useEffect, useState } from 'react';
-import { Plus, Tag, Coffee, GlassWater, Sandwich, MoreHorizontal, Edit, Trash2, X, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Search } from 'lucide-react';
 import Image from 'next/image';
 import { db, signIn } from '@/lib/firebase';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
-
-// ============================================================================
-// DATA CONTOH & TIPE
-// ============================================================================
+import { toast } from 'react-hot-toast';
 
 type MenuItem = {
     id: string;
@@ -44,7 +41,6 @@ const MenuItemModal: React.FC<MenuItemModalProps> = ({ isOpen, onClose, onSubmit
             setPrice(String(initialData.price));
             setImageUrl(initialData.imageUrl || '');
         } else {
-            // Reset form jika bukan edit mode atau modal ditutup
             setName('');
             setCategory('Kopi');
             setPrice('');
@@ -150,27 +146,6 @@ const MenuItemCard: React.FC<{ item: MenuItem; onEdit: () => void; onDelete: () 
 
 const LoadingSpinner = () => <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>;
 
-// const menuItems: MenuItem[] = [
-//     { id: 1, name: 'Espresso', category: 'Kopi', price: 18000, imageUrl: 'https://placehold.co/300x200/A37F61/FFFFFF?text=Espresso', isAvailable: true },
-//     { id: 2, name: 'Latte', category: 'Kopi', price: 25000, imageUrl: 'https://placehold.co/300x200/C3A68F/FFFFFF?text=Latte', isAvailable: true },
-//     { id: 3, name: 'Matcha Latte', category: 'Non-Kopi', price: 28000, imageUrl: 'https://placehold.co/300x200/87A96B/FFFFFF?text=Matcha', isAvailable: false },
-//     { id: 4, name: 'Croissant', category: 'Makanan', price: 22000, imageUrl: 'https://placehold.co/300x200/D4A276/FFFFFF?text=Croissant', isAvailable: true },
-//     { id: 5, name: 'Americano', category: 'Kopi', price: 20000, imageUrl: 'https://placehold.co/300x200/5B3A29/FFFFFF?text=Americano', isAvailable: true },
-//     { id: 6, name: 'Red Velvet', category: 'Non-Kopi', price: 28000, imageUrl: 'https://placehold.co/300x200/9B2C2C/FFFFFF?text=Red+Velvet', isAvailable: true },
-//     { id: 7, name: 'Tuna Sandwich', category: 'Makanan', price: 35000, imageUrl: 'https://placehold.co/300x200/F4A261/FFFFFF?text=Sandwich', isAvailable: false },
-//     { id: 8, name: 'Cappuccino', category: 'Kopi', price: 25000, imageUrl: 'https://placehold.co/300x200/8B5E3C/FFFFFF?text=Cappuccino', isAvailable: true },
-// ];
-
-// const categories = ['Semua', 'Kopi', 'Non-Kopi', 'Makanan'];
-// const categoryIcons = {
-//     'Kopi': <Coffee className="w-4 h-4 mr-2" />,
-//     'Non-Kopi': <GlassWater className="w-4 h-4 mr-2" />,
-//     'Makanan': <Sandwich className="w-4 h-4 mr-2" />,
-// };
-// ============================================================================
-// KOMPONEN UTAMA HALAMAN MENU
-// ============================================================================
-
 export default function MenuPage() {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -213,15 +188,22 @@ export default function MenuPage() {
             const docRef = doc(db, collectionPath, item.id);
             const { id, ...dataToUpdate } = item;
             await updateDoc(docRef, dataToUpdate);
+            toast.success('Item berhasil diperbarui!');
         } else { // Add mode
             await addDoc(collection(db, collectionPath), item);
+            toast.success('Item berhasil ditambahkan!');
         }
     };
 
     const handleDeleteItem = async (itemId: string) => {
         if (window.confirm('Apakah Anda yakin ingin menghapus item ini?')) {
-            const docRef = doc(db, collectionPath, itemId);
-            await deleteDoc(docRef);
+            try {
+                const docRef = doc(db, collectionPath, itemId);
+                await deleteDoc(docRef);
+                toast.success('Item berhasil dihapus!');
+            } catch (error) {
+                toast.error('Gagal menghapus item!');
+            }
         }
     };
 
