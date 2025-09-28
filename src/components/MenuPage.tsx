@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { db, signIn } from '@/lib/firebase';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
+import { LoadingSpinner } from './LoadingSpinner';
 
 type MenuItem = {
     id: string;
@@ -143,8 +144,6 @@ const MenuItemCard: React.FC<{ item: MenuItem; onEdit: () => void; onDelete: () 
         </div>
     </div>
 );
-
-const LoadingSpinner = () => <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>;
 
 export default function MenuPage() {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
