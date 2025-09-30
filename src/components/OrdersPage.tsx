@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, ReactNode, useEffect, useMemo, FormEvent } from 'react';
-import { MoreVertical, Search, ChevronLeft, ChevronRight, Printer, X, Trash2 } from 'lucide-react';
+import { MoreVertical, Search, ChevronLeft, ChevronRight, Printer, X, Trash2, Plus } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { db, signIn } from '@/lib/firebase';
 import { addDoc, collection, onSnapshot } from 'firebase/firestore';
@@ -179,12 +179,15 @@ const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, customers, men
 export default function OrdersPage() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [customers, setCustomers] = useState<Customer[]>([]);
+    const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [scriptsLoaded, setScriptsLoaded] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const ordersCollectionPath = `artifacts/${process.env.NEXT_PUBLIC_FIREBASE_APP_ID}/public/data/orders`;
     const customersCollectionPath = `artifacts/${process.env.NEXT_PUBLIC_FIREBASE_APP_ID}/public/data/customers`;
+    const menuItemsCollectionPath = `artifacts/${process.env.NEXT_PUBLIC_FIREBASE_APP_ID}/public/data/menuItems`;
 
     // Efek untuk memuat skrip PDF secara dinamis
     useEffect(() => {
@@ -226,137 +229,96 @@ export default function OrdersPage() {
                 setCustomers(customersList);
             });
 
+            const unsubMenuItems = onSnapshot(collection(db, menuItemsCollectionPath), (snapshot) => setMenuItems(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem))));
+
+
             return () => {
                 unsubOrders();
                 unsubCustomers();
+                unsubMenuItems();
             };
         };
         setupListeners();
-    }, [ordersCollectionPath, customersCollectionPath]);
+    }, [ordersCollectionPath, customersCollectionPath, menuItemsCollectionPath]);
 
-    // Menggabungkan data pesanan dan pelanggan menggunakan useMemo untuk efisiensi
     const displayOrders = useMemo(() => {
         const customerMap = new Map(customers.map(c => [c.id, c.name]));
-        return orders.map(order => ({
-            ...order,
-            customerName: customerMap.get(order.customerId) || 'Pelanggan Dihapus'
-        }));
+        return orders.map(order => ({ ...order, customerName: customerMap.get(order.customerId) || 'Pelanggan Dihapus' }));
     }, [orders, customers]);
 
-    const handlePrintOrder = (order: OrderWithCustomer) => {
-        if (!scriptsLoaded || !(window as any).jspdf) {
-            console.error("jsPDF scripts not loaded yet.");
-            return;
-        }
-
-        const { jsPDF } = (window as any).jspdf;
-        const doc = new jsPDF();
-
-        doc.setFontSize(20);
-        doc.text("Struk Pesanan - Kopi Senja", 105, 22, { align: 'center' });
-        doc.setFontSize(10);
-        doc.text("Jl. Kenangan No. 42, Makassar", 105, 28, { align: 'center' });
-
+    const handlePrintOrder = (order: OrderWithCustomer) => { /* ... (kode print PDF tetap sama) ... */
+        if (!scriptsLoaded || !(window as any).jspdf) { console.error("jsPDF scripts not loaded yet."); return; }
+        const { jsPDF } = (window as any).jspdf; const doc = new jsPDF();
+        doc.setFontSize(20); doc.text("Struk Pesanan - R Coffee", 105, 22, { align: 'center' }); doc.setFontSize(10); doc.text("Jl. Kenangan No. 42, Makassar", 105, 28, { align: 'center' });
         doc.setFontSize(12);
         doc.text(`ID Pesanan: ${order.id.substring(0, 8)}`, 14, 45);
-        doc.text(`Tanggal: ${new Date(order.orderDate).toLocaleDateString('id-ID', { dateStyle: 'long', timeStyle: 'short' })}`, 14, 52);
+        doc.text(`Tanggal: ${new Date(order.orderDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })} ${new Date(order.orderDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`, 14, 52);
         doc.text(`Pelanggan: ${order.customerName}`, 14, 59);
-
         const tableColumn = ["Item", "Qty", "Harga", "Total Harga"];
-        const tableRows = order.items.map(item => [
-            item.productName,
-            item.quantity,
-            `Rp ${item.price.toLocaleString('id-ID')}`,
-            `Rp ${(item.quantity * item.price).toLocaleString('id-ID')}`
-        ]);
-
-        (doc as any).autoTable({
-            head: [tableColumn],
-            body: tableRows,
-            startY: 65,
-            theme: 'striped',
-            headStyles: { fillColor: [63, 44, 30] }
-        });
-
+        const tableRows = order.items.map(item => [item.productName, item.quantity, `Rp ${item.price.toLocaleString('id-ID')}`, `Rp ${(item.quantity * item.price - order.discount).toLocaleString('id-ID')}`]);
+        (doc as any).autoTable({ head: [tableColumn], body: tableRows, startY: 65, theme: 'striped', headStyles: { fillColor: [63, 44, 30] } });
         const finalY = (doc as any).lastAutoTable.finalY;
-
-        const rightAlign = 196;
-        doc.setFontSize(12);
-        doc.text(`Subtotal:`, rightAlign - 30, finalY + 10, { align: 'left' });
-        doc.text(`Rp ${order.subtotal.toLocaleString('id-ID')}`, rightAlign, finalY + 10, { align: 'right' });
-        doc.text(`Diskon:`, rightAlign - 30, finalY + 17, { align: 'left' });
-        doc.text(`- Rp ${order.discount.toLocaleString('id-ID')}`, rightAlign, finalY + 17, { align: 'right' });
-        doc.setFont("helvetica", "bold");
-        doc.text(`Total:`, rightAlign - 30, finalY + 24, { align: 'left' });
-        doc.text(`Rp ${order.total.toLocaleString('id-ID')}`, rightAlign, finalY + 24, { align: 'right' });
-        doc.setFontSize(10);
-        doc.text("Terima kasih atas pesanan Anda!", 105, finalY + 45, { align: 'center' });
-
+        const rightAlign = 196; doc.setFontSize(12); doc.text(`Subtotal:`, rightAlign - 80, finalY + 10, { align: 'left' }); doc.text(`Rp ${order.subtotal.toLocaleString('id-ID')}`, rightAlign, finalY + 10, { align: 'right' }); doc.text(`Diskon:`, rightAlign - 80, finalY + 17, { align: 'left' }); doc.text(`- Rp ${order.discount.toLocaleString('id-ID')}`, rightAlign, finalY + 17, { align: 'right' }); doc.setFont("helvetica", "bold"); doc.text(`Total:`, rightAlign - 80, finalY + 24, { align: 'left' }); doc.text(`Rp ${order.total.toLocaleString('id-ID')}`, rightAlign, finalY + 24, { align: 'right' }); doc.setFontSize(10); doc.text("Terima kasih atas pesanan Anda!", 105, finalY + 45, { align: 'center' });
         doc.save(`struk_pesanan_${order.id.substring(0, 8)}.pdf`);
     };
 
-    const filteredOrders = displayOrders.filter(order =>
-        order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredOrders = displayOrders.filter(order => order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) || order.id.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const handleAddOrder = async (order: NewOrder) => {
         await addDoc(collection(db, ordersCollectionPath), order);
     };
+
     return (
-        <div className="p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Pesanan</h2>
-                    <p className="text-gray-500 mt-1">Lacak dan kelola semua pesanan pelanggan.</p>
+        <>
+            <OrderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} customers={customers} menuItems={menuItems} onSubmit={handleAddOrder} />
+            <div className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-300">Pesanan</h2>
+                        <p className="text-gray-500 mt-1">Lacak dan kelola semua pesanan pelanggan.</p>
+                    </div>
+                    <button onClick={() => setIsModalOpen(true)} className="bg-amber-800 text-white font-semibold py-2 px-4 rounded-lg flex items-center hover:bg-amber-900 transition-colors mt-3 sm:mt-0">
+                        <Plus className="w-5 h-5 mr-2" />
+                        Tambah Pesanan
+                    </button>
                 </div>
-                {/* Tombol Tambah Pesanan bisa ditambahkan di sini nanti */}
-            </div>
 
-            <div className="bg-white p-4 rounded-xl shadow-sm mb-6">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="text" placeholder="Cari ID pesanan atau nama pelanggan..." className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                <div className="bg-white p-4 rounded-xl shadow-sm mb-6">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input type="text" placeholder="Cari ID pesanan atau nama pelanggan..." className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    </div>
                 </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
-                {loading ? (
-                    <div className="flex justify-center items-center h-80"><LoadingSpinner /></div>
-                ) : (
-                    <table className="w-full text-sm text-left text-gray-600">
-                        <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
-                            <tr>
-                                <th className="px-6 py-3">ID Pesanan</th>
-                                <th className="px-6 py-3">Pelanggan</th>
-                                <th className="px-6 py-3">Tanggal</th>
-                                <th className="px-6 py-3 text-right">Total</th>
-                                <th className="px-6 py-3 text-center">Status</th>
-                                <th className="px-6 py-3 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredOrders.map((order) => (
-                                <tr key={order.id} className="bg-white border-b hover:bg-gray-50">
-                                    <td className="px-6 py-4 font-mono text-xs text-gray-500">{order.id.substring(0, 8)}</td>
-                                    <td className="px-6 py-4 font-medium text-gray-900">{order.customerName}</td>
-                                    <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                                    <td className="px-6 py-4 text-right font-semibold">Rp {order.total.toLocaleString('id-ID')}</td>
-                                    <td className="px-6 py-4 text-center"><StatusBadge status={order.status} /></td>
-                                    <td className="px-6 py-4 text-center">
-                                        <button onClick={() => handlePrintOrder(order)} className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors">
-                                            <Printer className="w-4 h-4" />
-                                        </button>
-                                    </td>
+                <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
+                    {loading ? (<div className="flex justify-center items-center h-80"><LoadingSpinner /></div>) : (
+                        <table className="w-full text-sm text-left text-gray-600">
+                            <thead className="bg-gray-50 text-xs text-gray-700 uppercase">
+                                <tr>
+                                    <th className="px-6 py-3">ID Pesanan</th><th className="px-6 py-3">Pelanggan</th><th className="px-6 py-3">Tanggal</th><th className="px-6 py-3 text-right">Total</th><th className="px-6 py-3 text-center">Status</th><th className="px-6 py-3 text-center">Aksi</th>
                                 </tr>
-                            ))}
-                            {filteredOrders.length === 0 && (
-                                <tr><td colSpan={6} className="text-center py-12 text-gray-500">Tidak ada pesanan.</td></tr>
-                            )}
-                        </tbody>
-                    </table>
-                )}
+                            </thead>
+                            <tbody>
+                                {filteredOrders.map((order) => (
+                                    <tr key={order.id} className="bg-white border-b hover:bg-gray-50">
+                                        <td className="px-6 py-4 font-mono text-xs text-gray-500">{order.id.substring(0, 8)}</td>
+                                        <td className="px-6 py-4 font-medium text-gray-900">{order.customerName}</td>
+                                        <td className="px-6 py-4">{new Date(order.orderDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                                        <td className="px-6 py-4 text-right font-semibold">Rp {order.total.toLocaleString('id-ID')}</td>
+                                        <td className="px-6 py-4 text-center"><StatusBadge status={order.status} /></td>
+                                        <td className="px-6 py-4 text-center">
+                                            <button onClick={() => handlePrintOrder(order)} disabled={!scriptsLoaded} className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <Printer className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {filteredOrders.length === 0 && (<tr><td colSpan={6} className="text-center py-12 text-gray-500">Tidak ada pesanan.</td></tr>)}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }

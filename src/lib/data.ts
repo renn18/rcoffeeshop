@@ -12,7 +12,7 @@ export const products: Product[] = [
     name: "Espresso",
     description: "Ekstrak kopi murni dengan crema tebal yang kaya rasa.",
     price: 18000,
-    imageUrl: "https://placehold.co/400x400/6F4E37/FFFFFF?text=Espresso",
+    imageUrl: "https://placehold.co/400x400/6F4E37/FFFFFF?text=Putee",
   },
   {
     id: 2,
